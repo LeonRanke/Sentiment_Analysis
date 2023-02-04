@@ -64,6 +64,8 @@ def calculate_sentiment(df):
 
 
 if __name__ == "__main__":
+    Link = input('Enter the link to be scraped: ')
+    print(Link)
     reviews = get_reviews()
     df = preprocess(reviews)
     sentiment_df = calculate_sentiment(df)
