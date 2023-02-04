@@ -1,11 +1,11 @@
 # Sentiment_Analysis
 
 # 1 Set up virtual enviroment
-`` python -m venv venv ``
-`` venv\Scriopts\Activate.ps1 ``
-`` python -m pip install --upgrade pip ``
-`` pip install ipykernel ``
-`` python -m ipykernel install --user --name=venv ``
+`` python -m venv venv `` <br/>
+`` venv\Scriopts\Activate.ps1 `` <br/>
+`` python -m pip install --upgrade pip `` <br/>
+`` pip install ipykernel `` <br/>
+`` python -m ipykernel install --user --name=venv `` <br/>
 
 # 2 Install Dependencies 
 `` pip install requirements.txt ``
