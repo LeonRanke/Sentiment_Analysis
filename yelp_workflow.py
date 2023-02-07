@@ -14,9 +14,9 @@ from nltk.corpus import stopwords
 
 
 # Define a get reviews function
-def get_reviews():
-    links = [f'https://www.yelp.com/biz/mcdonalds-los-angeles-106?start={10+10*x}' for x in range(12)]
-    links.insert(0, 'https://www.yelp.com/biz/mcdonalds-los-angeles-106')
+def get_reviews(link, num_pages):
+    links = []
+    links = [link+'?start='+str(10+idx*10) for idx in range(num_pages)]
     regex = re.compile('raw__')
 
     reviews = []
@@ -64,9 +64,9 @@ def calculate_sentiment(df):
 
 
 if __name__ == "__main__":
-    Link = input('Enter the link to be scraped: ')
-    print(Link)
-    reviews = get_reviews()
+    link = input('Enter the yelp link to be scraped: ')
+    num_pages = input('Enter the number of pages to be scraped: ')
+    reviews = get_reviews(link, int(num_pages))
     df = preprocess(reviews)
     sentiment_df = calculate_sentiment(df)
     sentiment_df.to_csv('Data/Results.csv')
