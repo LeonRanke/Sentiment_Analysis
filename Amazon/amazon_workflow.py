@@ -43,8 +43,8 @@ def get_reviews(link, num_pages):
 
 # Define a translate reviews function
 def translate_reviews(reviews):
-    detectlanguage.configuration.api_key = "eafb77af54089e8edcefc285c09ecd46"
-    translator = deepl.Translator("850a0a6f-bf39-3786-c632-d7e3868e217f:fx")
+    detectlanguage.configuration.api_key = ""
+    translator = deepl.Translator("")
 
     regrex_pattern = re.compile(pattern = "["
         u"\U0001F600-\U0001F64F"  # emoticons
