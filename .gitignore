@@ -131,3 +131,7 @@ dmypy.json
 
 # Vs Code
 .vs
+
+# Temp Folsers
+.Amazon/Data
+.Yelp/Data
