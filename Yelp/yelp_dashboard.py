@@ -14,7 +14,7 @@ from dash.dependencies import Input, Output
 
 
 # Read the data into pandas dataframe
-sentiment_df = pd.read_csv("Data/Results.csv")
+sentiment_df = pd.read_csv("Yelp/Data/Results.csv")
 freq = pd.Series(" ".join(sentiment_df['review_nostop']).split()).value_counts().reset_index()
 max_words = len(freq)
 

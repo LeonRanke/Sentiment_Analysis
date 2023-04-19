@@ -1,6 +1,7 @@
 # Import Dependencies
 import re
 import nltk
+import time
 import requests
 import numpy as np
 import pandas as pd
@@ -10,38 +11,47 @@ from textblob import TextBlob
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 
-
-
-
-# Define a get reviews function
-def get_reviews(link, num_pages):
-    links = []
-    links = [link+'?start='+str(10+idx*10) for idx in range(num_pages)]
-    regex = re.compile('raw__')
-
-    reviews = []
-    for link in links:
+# Class for getting reviews from Yelp
+class Yelp_Reviews:
+    def __init__(self, buisness):
+        self.buisness = buisness
+        self.url = f'https://www.yelp.com/biz/{self.buisness}?sort_by=date_desc'
+        
+    def get_reviews(self, page):
+        reviews = []
+        link = self.url + '?start=' + str(page*10)
         html = requests.get(link)
         if html.status_code == 200:
             soup = BeautifulSoup(html.text, 'html.parser')
-            results = soup.find_all('span', {'lang': 'en'}, class_=regex)
+            results = soup.find_all('span', {'lang': 'en'})
             for review in results:
                 reviews.append(review.text)
+            return reviews
         else:
-            print('[HTML ERROR] Did not recive HTML Status code 200 (ok) but ', html.status_code)
-    
-    return reviews
+            print('Page not found')
+            return False
+
+# Define a get reviews function
+def get_reviews(buisness, num_pages):
+    yelp = Yelp_Reviews(buisness)
+    reviews = []
+    for x in range(num_pages):
+        print(f'Getting Page {x}')
+        time.sleep(0.3)
+        reviews.append(yelp.get_reviews(x))
+    reviews_flattend = np.array(reviews).flatten()
+    return reviews_flattend
 
 
 # Preprocess Collected Reviews
 def preprocess(reviews):
-    df = pd.DataFrame(np.array(reviews), columns=['review'])
+    df = pd.DataFrame(reviews, columns=['review'])
     stop_words = stopwords.words('english')
 
     # Lowercase
     df['review_lower'] = df['review'].apply(lambda x: " ".join(x.lower() for x in x.split()))
     # Strip Punctuation
-    df['review_nopunc'] = df['review_lower'].str.replace('[^\w\s]','')
+    df['review_nopunc'] = df['review_lower'].str.replace('[^\w\s]','', regex=True)
     # Remove Stopwords
     df['review_nostop'] = df['review_nopunc'].apply(lambda x: " ".join(x for x in x.split() if x not in stop_words))
     # Custom Stopwords list
@@ -64,9 +74,9 @@ def calculate_sentiment(df):
 
 
 if __name__ == "__main__":
-    link = input('Enter the yelp link to be scraped: ')
+    buisness = input('Enter the yelp buisness name to be scraped: ')
     num_pages = input('Enter the number of pages to be scraped: ')
-    reviews = get_reviews(link, int(num_pages))
+    reviews = get_reviews(buisness, int(num_pages))
     df = preprocess(reviews)
     sentiment_df = calculate_sentiment(df)
-    sentiment_df.to_csv('Data/Results.csv')
+    sentiment_df.to_csv('Yelp/Data/Results.csv')

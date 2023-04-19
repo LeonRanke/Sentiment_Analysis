@@ -1,4 +1,5 @@
 import re
+import time
 import deepl
 import requests
 import numpy as np
@@ -10,36 +11,40 @@ from textblob import TextBlob
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 
+   
 # Define a get reviews function
 def get_reviews(link, num_pages):
     # Set up hedder to Scrape Amazon
-    HEADERS = ({'User-Agent':
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) \
-                AppleWebKit/537.36 (KHTML, like Gecko) \
-                Chrome/90.0.4430.212 Safari/537.36',
-                'Accept-Language': 'en-US, en;q=0.5'})
+    HEDDERS = {"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7", 
+               "Accept-Encoding": "gzip, deflate", 
+               "Dnt": "1", 
+               "Sec-Gpc": "1", 
+               "Upgrade-Insecure-Requests": "1", 
+               "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36", 
+               "X-Amzn-Trace-Id": "Root=1-643fd868-3ca2c6ce01ed0a2f34795b57"}
 
-    # Create List of links to scrape
+    # Construct list of links to scrape multiple pages
     links = []
-    links = [link+'&pageNumber='+str(x) for x in range(num_pages)]
+    for page in range(num_pages):
+        links.append(link + '&pageNumber=' + str(page))
 
     # Scrape all links in the constructed list
     reviews = []
     for link in links:
-        html = requests.get(link, headers=HEADERS)
+        html = requests.get(link, headers=HEDDERS)
         if html.status_code == 200:
-            # HTML response sucssesfull
+            # HTML response was sucssesfull
             soup = BeautifulSoup(html.text, 'html.parser')
             results = soup.find_all('span', {'data-hook': 'review-body'})
-            print(len(results))
             for review in results:
                 reviews.append(review.text.replace('\n', ''))
         else:
             # HTML response was unsuccsessfull
             print('[BAD HTML RESPONSE] Response Code =', html.status_code)
-
-
+    
     return reviews
+
+    
 
 # Define a translate reviews function
 def translate_reviews(reviews):
@@ -117,7 +122,7 @@ def calculate_sentiment(df):
     return df 
 
 if __name__ == "__main__":
-    link = input('Enter a Amazon link to be scraped: ')
+    link = input('Enter a Amazon asin code to be scraped: ')
     num_pages = input('Enter the number of pages to be scraped: ')
     reviews = get_reviews(link, int(num_pages))
     print(len(reviews))
