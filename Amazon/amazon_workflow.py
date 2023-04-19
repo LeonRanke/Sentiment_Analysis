@@ -1,5 +1,4 @@
 import re
-import time
 import deepl
 import requests
 import numpy as np
@@ -42,9 +41,7 @@ def get_reviews(link, num_pages):
             # HTML response was unsuccsessfull
             print('[BAD HTML RESPONSE] Response Code =', html.status_code)
     
-    return reviews
-
-    
+    return reviews   
 
 # Define a translate reviews function
 def translate_reviews(reviews):
@@ -58,6 +55,7 @@ def translate_reviews(reviews):
         u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
                            "]+", flags = re.UNICODE)
     
+    # Remove symbols and emoticons
     filterd_reviews = []
     for review in reviews:
         temp = regrex_pattern.sub(r'', review)
@@ -85,8 +83,7 @@ def translate_reviews(reviews):
         elif language in ['ie', 'sr']:
             translation = 'language not supported'
         else:
-            translation = translator.translate_text(review, target_lang='en-gb', source_lang=language)
-            
+            translation = translator.translate_text(review, target_lang='en-gb', source_lang=language)    
         translations.append(translation)
         
     # Add Translation to dataframe
@@ -95,7 +92,7 @@ def translate_reviews(reviews):
 
 # Preprocess Collected Reviews
 def preprocess():
-    df = pd.read_csv('Amazon/Data/Reviews_Translated.csv')
+    df = pd.read_csv('Amazon/Data/Reviews_Translated.csv', index_col=0)
     stop_words = stopwords.words('english')
 
     #  Lowercase
@@ -125,8 +122,8 @@ if __name__ == "__main__":
     link = input('Enter a Amazon asin code to be scraped: ')
     num_pages = input('Enter the number of pages to be scraped: ')
     reviews = get_reviews(link, int(num_pages))
-    print(len(reviews))
-    #translate_reviews(reviews)
-    #df = preprocess()
-    #sentiment_df = calculate_sentiment(df)
-    #sentiment_df.to_csv('Amazon/Data/Results.csv')
+    print(f'Collected {len(reviews)} Reviews in total')
+    translate_reviews(reviews)
+    df = preprocess()
+    sentiment_df = calculate_sentiment(df)
+    sentiment_df.to_csv('Amazon/Data/Results.csv')
